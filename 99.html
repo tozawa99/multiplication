@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>たのしい九九れんしゅう</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap');
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #f0fdf4;
+            /* 選択を防ぐためのスタイルを追加 */
+            user-select: none;
+        }
+        .bouncy {
+            animation: bounce 0.5s ease infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+        .correct-anim {
+            animation: pop 0.4s ease-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-xl p-6 border-4 border-yellow-400 relative overflow-hidden">
+        
+        <!-- 初期画面：段の選択 -->
+        <div id="setup-screen" class="text-center">
+            <h1 class="text-3xl font-bold text-green-600 mb-6 bouncy">九九のれんしゅう</h1>
+            <p class="text-lg text-gray-600 mb-4">なにの段を れんしゅうする？</p>
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="startPractice(1)" class="bg-red-400 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">1</button>
+                <button onclick="startPractice(2)" class="bg-orange-400 hover:bg-orange-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">2</button>
+                <button onclick="startPractice(3)" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">3</button>
+                <button onclick="startPractice(4)" class="bg-green-400 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">4</button>
+                <button onclick="startPractice(5)" class="bg-teal-400 hover:bg-teal-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">5</button>
+                <button onclick="startPractice(6)" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">6</button>
+                <button onclick="startPractice(7)" class="bg-indigo-400 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">7</button>
+                <button onclick="startPractice(8)" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">8</button>
+                <button onclick="startPractice(9)" class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">9</button>
+            </div>
+        </div>
+
+        <!-- 問題画面 -->
+        <div id="practice-screen" class="hidden text-center">
+            <div class="flex justify-between items-center mb-4">
+                <span id="progress-text" class="text-gray-500 font-bold">1 / 9</span>
+                <button onclick="resetApp()" class="text-gray-400 hover:text-red-500 font-bold px-2 py-1 rounded">やめる</button>
+            </div>
+            
+            <div class="text-5xl font-bold text-gray-800 my-8 flex justify-center items-center gap-4">
+                <span id="base-number" class="text-blue-600"></span>
+                <span>×</span>
+                <span id="multiplier" class="text-green-600 bouncy"></span>
+                <span>=</span>
+                <span id="answer-box" class="w-16 h-16 border-b-4 border-gray-400 text-red-500 inline-flex items-center justify-center">?</span>
+            </div>
+
+            <!-- 数字キーパッド -->
+            <div class="grid grid-cols-3 gap-2 mt-8 max-w-[250px] mx-auto">
+                <button onclick="inputNumber(1)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">1</button>
+                <button onclick="inputNumber(2)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">2</button>
+                <button onclick="inputNumber(3)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">3</button>
+                <button onclick="inputNumber(4)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">4</button>
+                <button onclick="inputNumber(5)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">5</button>
+                <button onclick="inputNumber(6)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">6</button>
+                <button onclick="inputNumber(7)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">7</button>
+                <button onclick="inputNumber(8)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">8</button>
+                <button onclick="inputNumber(9)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">9</button>
+                <button onclick="clearInput()" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-3 rounded-xl text-sm transition">けす</button>
+                <button onclick="inputNumber(0)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">0</button>
+                <button onclick="checkAnswer()" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition">こたえ</button>
+            </div>
+            
+            <p id="feedback-message" class="mt-4 text-xl font-bold h-8 text-orange-500"></p>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="hidden text-center">
+            <h2 class="text-3xl font-bold text-yellow-500 mb-4 bouncy">よくできました！</h2>
+            <div class="text-6xl mb-6">🌟</div>
+            <p id="result-text" class="text-xl text-gray-700 mb-8"></p>
+            <button onclick="resetApp()" class="bg-green-400 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-md transition w-full">もういちど</button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentBase = 1;      // 選んだ「段」
+        let multipliers = [];     // かける数の配列（シャッフルされる）
+        let currentIndex = 0;     // 現在何問目か
+        let currentInput = "";    // ユーザーが入力中の数字
+        let mistakes = 0;         // まちがえた回数
+
+        const setupScreen = document.getElementById('setup-screen');
+        const practiceScreen = document.getElementById('practice-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const baseNumberEl = document.getElementById('base-number');
+        const multiplierEl = document.getElementById('multiplier');
+        const answerBox = document.getElementById('answer-box');
+        const progressText = document.getElementById('progress-text');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const resultText = document.getElementById('result-text');
+
+        // 配列をシャッフルする関数（Fisher-Yates）
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startPractice(base) {
+            currentBase = base;
+            // 1〜9の配列を作成してシャッフル
+            multipliers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            shuffleArray(multipliers);
+            
+            currentIndex = 0;
+            mistakes = 0;
+            
+            setupScreen.classList.add('hidden');
+            practiceScreen.classList.remove('hidden');
+            
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            if (currentIndex >= 9) {
+                showResult();
+                return;
+            }
+
+            currentInput = "";
+            answerBox.textContent = "?";
+            answerBox.classList.remove('text-black');
+            answerBox.classList.add('text-red-500');
+            feedbackMessage.textContent = "";
+            
+            baseNumberEl.textContent = currentBase;
+            multiplierEl.textContent = multipliers[currentIndex];
+            
+            // アニメーションを再トリガーするため、一度クラスを外して少し待ってから付ける
+            multiplierEl.classList.remove('bouncy');
+            void multiplierEl.offsetWidth; // リフローを強制
+            multiplierEl.classList.add('bouncy');
+
+            progressText.textContent = `${currentIndex + 1} / 9`;
+        }
+
+        function inputNumber(num) {
+            // 最大2桁まで入力可能にする
+            if (currentInput.length < 2) {
+                currentInput += num.toString();
+                answerBox.textContent = currentInput;
+                answerBox.classList.remove('text-red-500');
+                answerBox.classList.add('text-black');
+            }
+        }
+
+        function clearInput() {
+            currentInput = "";
+            answerBox.textContent = "?";
+            answerBox.classList.remove('text-black');
+            answerBox.classList.add('text-red-500');
+        }
+
+        function checkAnswer() {
+            if (currentInput === "") return;
+
+            const correctAnswer = currentBase * multipliers[currentIndex];
+            const userAnswer = parseInt(currentInput, 10);
+
+            if (userAnswer === correctAnswer) {
+                // 正解の処理
+                feedbackMessage.textContent = "せいかい！⭕️";
+                feedbackMessage.className = "mt-4 text-xl font-bold h-8 text-green-500";
+                
+                // 正解アニメーション
+                answerBox.classList.add('correct-anim');
+                setTimeout(() => answerBox.classList.remove('correct-anim'), 400);
+
+                // 少し待ってから次の問題へ
+                setTimeout(() => {
+                    currentIndex++;
+                    showNextQuestion();
+                }, 800);
+            } else {
+                // 不正解の処理
+                mistakes++;
+                feedbackMessage.textContent = "ちがうよ！❌ もういちど";
+                feedbackMessage.className = "mt-4 text-xl font-bold h-8 text-red-500";
+                
+                // エラーアニメーション（横揺れ）
+                answerBox.style.transform = "translateX(-5px)";
+                setTimeout(() => answerBox.style.transform = "translateX(5px)", 100);
+                setTimeout(() => answerBox.style.transform = "translateX(-5px)", 200);
+                setTimeout(() => answerBox.style.transform = "translateX(0)", 300);
+
+                setTimeout(() => {
+                    clearInput();
+                }, 800);
+            }
+        }
+
+        function showResult() {
+            practiceScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            resultText.innerHTML = `${currentBase}の段 がんばったね！<br>まちがえた回数： ${mistakes}回`;
+        }
+
+        function resetApp() {
+            resultScreen.classList.add('hidden');
+            practiceScreen.classList.add('hidden');
+            setupScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
