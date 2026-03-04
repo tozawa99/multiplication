@@ -3,105 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>たのしい九九れんしゅう</title>
+    <title>🚀たのしい九九れんしゅう🛸</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 紙吹雪を降らせるためのライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
         body {
             font-family: 'Zen Maru Gothic', sans-serif;
             background-color: #f0fdf4;
-            /* 選択を防ぐためのスタイルを追加 */
             user-select: none;
+            transition: background-color 0.3s;
         }
+        
+        /* ぴょんぴょん跳ねるアニメーション */
         .bouncy {
             animation: bounce 0.5s ease infinite alternate;
         }
         @keyframes bounce {
             from { transform: translateY(0); }
-            to { transform: translateY(-5px); }
+            to { transform: translateY(-8px); }
         }
+
+        /* 正解時の文字ポップアニメーション */
         .correct-anim {
-            animation: pop 0.4s ease-out;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #10b981 !important; /* Tailwindのgreen-500 */
         }
         @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.5) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* 画面が揺れるアニメーション（間違えた時用） */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+
+        /* 背景がフラッシュするアニメーション */
+        .bg-flash-green { animation: flashGreen 0.5s ease-out; }
+        @keyframes flashGreen {
+            0% { background-color: #a7f3d0; } /* emerald-200 */
+            100% { background-color: #f0fdf4; }
+        }
+
+        .bg-flash-red { animation: flashRed 0.5s ease-out; }
+        @keyframes flashRed {
+            0% { background-color: #fecaca; } /* red-200 */
+            100% { background-color: #f0fdf4; }
+        }
+
+        /* ボタンのホバーエフェクト */
+        .btn-hover-effect:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
+<body id="main-body" class="flex flex-col items-center justify-center min-h-screen p-4">
 
-    <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-xl p-6 border-4 border-yellow-400 relative overflow-hidden">
+    <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border-4 border-yellow-400 relative overflow-hidden transition-transform duration-300">
         
         <!-- 初期画面：段の選択 -->
         <div id="setup-screen" class="text-center">
-            <h1 class="text-3xl font-bold text-green-600 mb-6 bouncy">🌸九九のれんしゅう🌸</h1>
-            <p class="text-lg text-gray-600 mb-4">何の段を れんしゅうする？</p>
+            <h1 class="text-3xl font-black text-green-600 mb-6 bouncy drop-shadow-sm">🚀たのしい九九れんしゅう🛸</h1>
+            <p class="text-lg text-gray-600 mb-4 font-bold">何の段を れんしゅうする？</p>
             <div class="grid grid-cols-3 gap-3">
-                <button onclick="startPractice(1)" class="bg-red-400 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">1</button>
-                <button onclick="startPractice(2)" class="bg-orange-400 hover:bg-orange-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">2</button>
-                <button onclick="startPractice(3)" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">3</button>
-                <button onclick="startPractice(4)" class="bg-green-400 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">4</button>
-                <button onclick="startPractice(5)" class="bg-teal-400 hover:bg-teal-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">5</button>
-                <button onclick="startPractice(6)" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">6</button>
-                <button onclick="startPractice(7)" class="bg-indigo-400 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">7</button>
-                <button onclick="startPractice(8)" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">8</button>
-                <button onclick="startPractice(9)" class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-md transition">9</button>
+                <button onclick="startPractice(1)" class="btn-hover-effect bg-red-400 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(185,28,28)] hover:shadow-[0_2px_0_rgb(185,28,28)] hover:translate-y-[2px] transition-all">1</button>
+                <button onclick="startPractice(2)" class="btn-hover-effect bg-orange-400 hover:bg-orange-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(194,65,12)] hover:shadow-[0_2px_0_rgb(194,65,12)] hover:translate-y-[2px] transition-all">2</button>
+                <button onclick="startPractice(3)" class="btn-hover-effect bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(161,98,7)] hover:shadow-[0_2px_0_rgb(161,98,7)] hover:translate-y-[2px] transition-all">3</button>
+                <button onclick="startPractice(4)" class="btn-hover-effect bg-green-400 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(21,128,61)] hover:shadow-[0_2px_0_rgb(21,128,61)] hover:translate-y-[2px] transition-all">4</button>
+                <button onclick="startPractice(5)" class="btn-hover-effect bg-teal-400 hover:bg-teal-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(15,118,110)] hover:shadow-[0_2px_0_rgb(15,118,110)] hover:translate-y-[2px] transition-all">5</button>
+                <button onclick="startPractice(6)" class="btn-hover-effect bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(29,78,216)] hover:shadow-[0_2px_0_rgb(29,78,216)] hover:translate-y-[2px] transition-all">6</button>
+                <button onclick="startPractice(7)" class="btn-hover-effect bg-indigo-400 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all">7</button>
+                <button onclick="startPractice(8)" class="btn-hover-effect bg-purple-400 hover:bg-purple-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(126,34,206)] hover:shadow-[0_2px_0_rgb(126,34,206)] hover:translate-y-[2px] transition-all">8</button>
+                <button onclick="startPractice(9)" class="btn-hover-effect bg-pink-400 hover:bg-pink-500 text-white font-bold py-4 rounded-2xl text-2xl shadow-[0_4px_0_rgb(190,24,93)] hover:shadow-[0_2px_0_rgb(190,24,93)] hover:translate-y-[2px] transition-all">9</button>
             </div>
         </div>
 
         <!-- 問題画面 -->
         <div id="practice-screen" class="hidden text-center">
-            <div class="flex justify-between items-center mb-4">
-                <span id="progress-text" class="text-gray-500 font-bold">1 / 9</span>
-                <button onclick="resetApp()" class="text-gray-400 hover:text-red-500 font-bold px-2 py-1 rounded">やめる</button>
+            <div class="flex justify-between items-center mb-2">
+                <div class="bg-gray-200 rounded-full px-4 py-1">
+                    <span id="progress-text" class="text-gray-600 font-black text-lg">1 / 9</span>
+                </div>
+                <button onclick="resetApp()" class="text-gray-400 hover:text-red-500 font-bold px-2 py-1 rounded transition">やめる</button>
             </div>
             
-            <div class="text-5xl font-bold text-gray-800 my-8 flex justify-center items-center gap-4">
-                <span id="base-number" class="text-blue-600"></span>
-                <span>×</span>
-                <span id="multiplier" class="text-green-600 bouncy"></span>
-                <span>=</span>
-                <span id="answer-box" class="w-16 h-16 border-b-4 border-gray-400 text-red-500 inline-flex items-center justify-center">?</span>
+            <div class="text-6xl font-black text-gray-800 my-6 flex justify-center items-center gap-2 drop-shadow-md">
+                <span id="base-number" class="text-blue-500"></span>
+                <span class="text-4xl text-gray-400">×</span>
+                <span id="multiplier" class="text-orange-500 bouncy inline-block"></span>
+                <span class="text-4xl text-gray-400">=</span>
+                <span id="answer-box" class="w-20 h-20 border-b-8 border-gray-300 text-red-500 inline-flex items-center justify-center transition-all duration-200">?</span>
             </div>
 
             <!-- 数字キーパッド -->
-            <div class="grid grid-cols-3 gap-2 mt-8 max-w-[250px] mx-auto">
-                <button onclick="inputNumber(1)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">1</button>
-                <button onclick="inputNumber(2)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">2</button>
-                <button onclick="inputNumber(3)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">3</button>
-                <button onclick="inputNumber(4)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">4</button>
-                <button onclick="inputNumber(5)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">5</button>
-                <button onclick="inputNumber(6)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">6</button>
-                <button onclick="inputNumber(7)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">7</button>
-                <button onclick="inputNumber(8)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">8</button>
-                <button onclick="inputNumber(9)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">9</button>
-                <button onclick="clearInput()" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-3 rounded-xl text-sm transition">けす</button>
-                <button onclick="inputNumber(0)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xl transition">0</button>
-                <button onclick="checkAnswer()" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition">こたえ</button>
+            <div class="grid grid-cols-3 gap-3 mt-6 max-w-[280px] mx-auto">
+                <button onclick="inputNumber(1)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">1</button>
+                <button onclick="inputNumber(2)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">2</button>
+                <button onclick="inputNumber(3)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">3</button>
+                <button onclick="inputNumber(4)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">4</button>
+                <button onclick="inputNumber(5)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">5</button>
+                <button onclick="inputNumber(6)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">6</button>
+                <button onclick="inputNumber(7)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">7</button>
+                <button onclick="inputNumber(8)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">8</button>
+                <button onclick="inputNumber(9)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">9</button>
+                <button onclick="clearInput()" class="btn-hover-effect bg-red-100 hover:bg-red-200 text-red-600 font-bold py-3 rounded-2xl text-base shadow-[0_4px_0_rgb(252,165,165)] hover:shadow-[0_2px_0_rgb(252,165,165)] hover:translate-y-[2px] transition-all">けす</button>
+                <button onclick="inputNumber(0)" class="btn-hover-effect bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-800 font-bold py-3 rounded-2xl text-2xl shadow-[0_4px_0_rgb(229,231,235)] hover:shadow-[0_2px_0_rgb(229,231,235)] hover:translate-y-[2px] transition-all">0</button>
+                <button onclick="checkAnswer()" class="btn-hover-effect bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-2xl text-base shadow-[0_4px_0_rgb(37,99,235)] hover:shadow-[0_2px_0_rgb(37,99,235)] hover:translate-y-[2px] transition-all">こたえ</button>
             </div>
             
-            <p id="feedback-message" class="mt-4 text-xl font-bold h-8 text-orange-500"></p>
+            <p id="feedback-message" class="mt-6 text-2xl font-black h-8 flex items-center justify-center"></p>
         </div>
 
         <!-- 結果画面 -->
-        <div id="result-screen" class="hidden text-center">
-            <h2 class="text-3xl font-bold text-yellow-500 mb-4 bouncy">よくできました！</h2>
-            <div class="text-6xl mb-6">🌟</div>
-            <p id="result-text" class="text-xl text-gray-700 mb-8"></p>
-            <button onclick="resetApp()" class="bg-green-400 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-md transition w-full">もういちど</button>
+        <div id="result-screen" class="hidden text-center py-6">
+            <h2 class="text-4xl font-black text-yellow-500 mb-2 bouncy drop-shadow-md">おめでとう！</h2>
+            <div class="text-8xl mb-6">🏆</div>
+            <div class="bg-yellow-50 rounded-2xl p-4 mb-8 border-2 border-yellow-200">
+                <p id="result-text" class="text-2xl font-bold text-gray-800 leading-relaxed"></p>
+            </div>
+            <button onclick="resetApp()" class="btn-hover-effect bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-4 px-8 rounded-full text-2xl shadow-[0_6px_0_rgb(21,128,61)] hover:shadow-[0_3px_0_rgb(21,128,61)] hover:translate-y-[3px] transition-all w-full flex items-center justify-center gap-2">
+                <span>🔄</span> もういちど遊ぶ
+            </button>
         </div>
 
     </div>
 
     <script>
-        let currentBase = 1;      // 選んだ「段」
-        let multipliers = [];     // かける数の配列（シャッフルされる）
-        let currentIndex = 0;     // 現在何問目か
-        let currentInput = "";    // ユーザーが入力中の数字
-        let mistakes = 0;         // まちがえた回数
+        // 9までの設定に戻しました
+        let currentBase = 1;
+        let multipliers = [];
+        let currentIndex = 0;
+        let currentInput = "";
+        let mistakes = 0;
 
+        const mainBody = document.getElementById('main-body');
+        const appContainer = document.getElementById('app');
         const setupScreen = document.getElementById('setup-screen');
         const practiceScreen = document.getElementById('practice-screen');
         const resultScreen = document.getElementById('result-screen');
@@ -112,7 +157,6 @@
         const feedbackMessage = document.getElementById('feedback-message');
         const resultText = document.getElementById('result-text');
 
-        // 配列をシャッフルする関数（Fisher-Yates）
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -122,7 +166,7 @@
 
         function startPractice(base) {
             currentBase = base;
-            // 1〜9の配列を作成してシャッフル
+            // 1〜9までの配列
             multipliers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
             shuffleArray(multipliers);
             
@@ -136,6 +180,7 @@
         }
 
         function showNextQuestion() {
+            // 9問終わったらクリア
             if (currentIndex >= 9) {
                 showResult();
                 return;
@@ -143,35 +188,34 @@
 
             currentInput = "";
             answerBox.textContent = "?";
-            answerBox.classList.remove('text-black');
-            answerBox.classList.add('text-red-500');
-            feedbackMessage.textContent = "";
+            answerBox.classList.remove('text-gray-800', 'border-green-500', 'bg-green-50');
+            answerBox.classList.add('text-red-500', 'border-gray-300');
+            feedbackMessage.innerHTML = "";
             
             baseNumberEl.textContent = currentBase;
             multiplierEl.textContent = multipliers[currentIndex];
             
-            // アニメーションを再トリガーするため、一度クラスを外して少し待ってから付ける
             multiplierEl.classList.remove('bouncy');
-            void multiplierEl.offsetWidth; // リフローを強制
+            void multiplierEl.offsetWidth;
             multiplierEl.classList.add('bouncy');
 
+            // 9までのプログレス
             progressText.textContent = `${currentIndex + 1} / 9`;
         }
 
         function inputNumber(num) {
-            // 最大2桁まで入力可能にする
             if (currentInput.length < 2) {
                 currentInput += num.toString();
                 answerBox.textContent = currentInput;
                 answerBox.classList.remove('text-red-500');
-                answerBox.classList.add('text-black');
+                answerBox.classList.add('text-gray-800');
             }
         }
 
         function clearInput() {
             currentInput = "";
             answerBox.textContent = "?";
-            answerBox.classList.remove('text-black');
+            answerBox.classList.remove('text-gray-800');
             answerBox.classList.add('text-red-500');
         }
 
@@ -182,34 +226,55 @@
             const userAnswer = parseInt(currentInput, 10);
 
             if (userAnswer === correctAnswer) {
-                // 正解の処理
-                feedbackMessage.textContent = "せいかい！⭕️";
-                feedbackMessage.className = "mt-4 text-xl font-bold h-8 text-green-500";
+                // --- 派手な正解演出 ---
+                feedbackMessage.innerHTML = "大せいかい！ <span class='text-4xl ml-2'>🌟</span>";
+                feedbackMessage.className = "mt-6 text-3xl font-black h-8 flex items-center justify-center text-green-500";
                 
-                // 正解アニメーション
+                // 枠の色を変える
+                answerBox.classList.add('border-green-500', 'bg-green-50');
+                
+                // 文字がポンッと大きくなる
                 answerBox.classList.add('correct-anim');
-                setTimeout(() => answerBox.classList.remove('correct-anim'), 400);
+                
+                // 背景が緑にフラッシュ
+                mainBody.classList.add('bg-flash-green');
+                
+                // 紙吹雪を飛ばす
+                confetti({
+                    particleCount: 60,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#10b981', '#fbbf24', '#3b82f6']
+                });
 
-                // 少し待ってから次の問題へ
+                setTimeout(() => {
+                    answerBox.classList.remove('correct-anim');
+                    mainBody.classList.remove('bg-flash-green');
+                }, 500);
+
                 setTimeout(() => {
                     currentIndex++;
                     showNextQuestion();
-                }, 800);
+                }, 1000);
+
             } else {
-                // 不正解の処理
+                // --- 派手な不正解演出 ---
                 mistakes++;
-                feedbackMessage.textContent = "ちがうよ！❌ もういちど";
-                feedbackMessage.className = "mt-4 text-xl font-bold h-8 text-red-500";
+                feedbackMessage.innerHTML = "おしい！ <span class='text-4xl ml-2'>💦</span>";
+                feedbackMessage.className = "mt-6 text-3xl font-black h-8 flex items-center justify-center text-red-500";
                 
-                // エラーアニメーション（横揺れ）
-                answerBox.style.transform = "translateX(-5px)";
-                setTimeout(() => answerBox.style.transform = "translateX(5px)", 100);
-                setTimeout(() => answerBox.style.transform = "translateX(-5px)", 200);
-                setTimeout(() => answerBox.style.transform = "translateX(0)", 300);
+                // 画面全体を揺らす
+                appContainer.classList.add('shake');
+                
+                // 背景が赤にフラッシュ
+                mainBody.classList.add('bg-flash-red');
 
                 setTimeout(() => {
+                    appContainer.classList.remove('shake');
+                    mainBody.classList.remove('bg-flash-red');
                     clearInput();
-                }, 800);
+                    feedbackMessage.innerHTML = "";
+                }, 600);
             }
         }
 
@@ -217,7 +282,39 @@
             practiceScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
             
-            resultText.innerHTML = `${currentBase}の段 がんばったね！<br>まちがえた回数： ${mistakes}回`;
+            let message = "";
+            if (mistakes === 0) {
+                message = "<span class='text-red-500'>パーフェクト！！</span><br>まちがえなしでクリア！天才！";
+            } else {
+                message = `${currentBase}の段 がんばったね！<br>まちがえた回数： <span class="text-red-500 text-3xl">${mistakes}</span> 回`;
+            }
+            
+            resultText.innerHTML = message;
+
+            // --- クリア時の大盤振る舞い紙吹雪 ---
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
         }
 
         function resetApp() {
@@ -227,6 +324,4 @@
         }
     </script>
 </body>
-
 </html>
-
